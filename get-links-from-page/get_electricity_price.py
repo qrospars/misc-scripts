@@ -6,27 +6,37 @@ from time import sleep
 from tqdm import tqdm
 import json
 import urllib.parse
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+gauth = GoogleAuth()
+drive = GoogleDrive(gauth)
 
 
-def get_all_links(season_number):
-    """
-    Returns:
-        list: the list of full urls
-    """
-    url = 'http://realitypoint.com/Data/The%20Big%20Bang%20Theory%20Season%20' + \
-        season_number+'.html'
+def get_price():
+    url = 'https://andelenergi.dk/kundeservice/aftaler-og-priser/timepris/'
     response = rget(url)
 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    list_of_URLs = []
-    for link in soup.find_all('a'):
-        link = link.get('href')
-        if ('S0' in link):
-            # Add encoded URL to the list
-            list_of_URLs.append(link.replace(' ', '%20'))
+    # get the data used to create the chart
+    data = json.loads(soup.select('#chart-component')[0].get("data-chart"))
+    # grab west data
+    data['west']
+    # append data to existing database
+    # upload to drive
+    file_list = drive.ListFile({'q': "'{}' in parents and trashed=false".format(
+        '1cIMiqUDUNldxO6Nl-KVuS9SV-cWi9WLi')}).GetList()
 
-    return list_of_URLs
+    print(file_list)
+
+    # list_of_URLs = []
+    # for link in soup.find_all('#chart-current-price'):
+    #     link = link.get('href')
+    #     if ('S0' in link):
+    #         # Add encoded URL to the list
+    #         list_of_URLs.append(link.replace(' ', '%20'))
+
+    # return list_of_URLs
 
 
 def get_image_from_url_and_save(url):
@@ -59,13 +69,13 @@ def get_all_video_links(season_number):
     }
 
 
-seasons = ['3', '4', '5', '6', '7', '8', '9']
-final_list = []
-for season in tqdm(seasons):
-    sleep(1)
-    final_list.append(get_all_video_links(season))
+get_price()
+# final_list = []
+# for season in tqdm(seasons):
+#     sleep(1)
+#     final_list.append(get_all_video_links(season))
 
-jsonString = json.dumps(final_list)
-jsonFile = open("data.json", "w")
-jsonFile.write(jsonString)
-jsonFile.close()
+# jsonString = json.dumps(final_list)
+# jsonFile = open("data.json", "w")
+# jsonFile.write(jsonString)
+# jsonFile.close()
